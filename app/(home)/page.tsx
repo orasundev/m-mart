@@ -29,6 +29,7 @@ export default async function HomePage() {
     tag: 'best-seller',
     limit: 4,
   })
+
   const cards = [
     {
       title: 'Categories to explore',
