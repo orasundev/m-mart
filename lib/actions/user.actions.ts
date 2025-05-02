@@ -6,8 +6,8 @@ import User from '../db/models/user.model'
 import bcrypt from 'bcryptjs'
 import { UserSignUpSchema } from '../validator'
 import { formatError } from '../utils'
-import { signIn, signOut } from '@/auth'
-import { IUserSignIn, IUserSignUp } from '@/types'
+import { auth, signIn, signOut } from '@/auth'
+import { IUserName, IUserSignIn, IUserSignUp } from '@/types'
 
 export async function signInWithCredentials(user: IUserSignIn) {
   return await signIn('credentials', { ...user, redirect: false })
@@ -39,5 +39,24 @@ export async function registerUser(userSignUp: IUserSignUp) {
     return { success: true, message: 'User created successfully' }
   } catch (error) {
     return { success: false, error: formatError(error) }
+  }
+}
+
+// UPDATE
+export async function updateUserName(user: IUserName) {
+  try {
+    await connectToDatabase()
+    const session = await auth()
+    const currentUser = await User.findById(session?.user?.id)
+    if (!currentUser) throw new Error('User not found')
+    currentUser.name = user.name
+    const updatedUser = await currentUser.save()
+    return {
+      success: true,
+      message: 'User updated successfully',
+      data: JSON.parse(JSON.stringify(updatedUser)),
+    }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
   }
 }
